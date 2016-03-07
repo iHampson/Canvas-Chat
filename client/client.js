@@ -13,6 +13,9 @@ function setupSocket(){
 
     socket.on('new', function(data){
       console.log(data);
+      // if(data.name){
+      // var newCan = document.createElement(canvas);
+      // }
     });
     socket.on('updateClient', function(data){
       // grab the right canvas and update it... somehow

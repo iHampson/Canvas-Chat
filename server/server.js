@@ -10,37 +10,55 @@ var client = fs.readFileSync(__dirname + "/../client/client.html");
 server.listen(port);
 console.log(`Listening on port:${port}`);
 
-var OnJoin = socket => {
-  socket.on('join',function(data){
-    var rCount = io.sockets.adapter.rooms['room1'].length;
-    if(rCount <4){
-      socket.broadcast.in('room1').
-      socket.join('room1');
-      console.log("joined room1");
-    } else{
-      socket.join('overflow');
-      console.log('room1 overflowed');
-    }
+const init = () => {
+  var roomCount = 0;
+  var cCount = 0;
+  var users = { };
+
+  var OnJoin = socket => {
+    socket.on('join',function(data){
+      cCount += 1;
+      if(roomCount <5){
+        io.sockets.in('room1').emit('new',{name:data.name});
+        socket.join('room1');
+        console.log("joined room1");
+        if(cCount !== 1){
+          console.log('Sending previously connected users');
+          for(var key in users){
+            console.log(users[key]);
+            socket.emit('new', key);
+          }
+          console.log('Users sent');
+        }
+        users[data.name] = {name:data.name, sId:socket.id};
+        roomCount += 1;
+      } else{
+        socket.join('overflow');
+        console.log('room1 overflowed');
+      }
+    });
+  };
+
+  var OnMsg = socket => {
+
+  };
+
+  app.get('/', function(req, res){
+    res.writeHead(200, {"Content-Type": "text/html"});
+    res.write(client);
+    res.end();
   });
-};
 
-var OnMsg = socket => {
+  app.get('/client/client.js', function(req,res){
+    res.writeHead(200, {"Content-Type": "application/javascript"});
+    res.write(fs.readFileSync(__dirname+"/../client/client.js"));
+    res.end();
+  });
 
-};
+  io.sockets.on("connection",function(socket){
+    OnJoin(socket);
+    OnMsg(socket);
+  });
 
-app.get('/', function(req, res){
-  res.writeHead(200, {"Content-Type": "text/html"});
-  res.write(client);
-  res.end();
-});
 
-app.get('/client/client.js', function(req,res){
-  res.writeHead(200, {"Content-Type": "application/javascript"});
-  res.write(fs.readFileSync(__dirname+"/../client/client.js"));
-  res.end();
-});
-
-io.sockets.on("connection",function(socket){
-  OnJoin(socket);
-  OnMsg(socket);
-});
+}();
