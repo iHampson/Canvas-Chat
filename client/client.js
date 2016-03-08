@@ -24,6 +24,7 @@ var connectSocket = () => {
 
         var newLabel = document.createElement('span');
         newLabel.innerHTML = data.name;
+        newLabel.style.display = "block";
 
         var newCan = document.createElement('canvas');
         newCan.setAttribute('id',data.name);
