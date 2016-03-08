@@ -17,16 +17,16 @@ var init = () => {
   var OnJoin = socket => {
     socket.on('join',data => {
       cCount += 1;
-        io.sockets.in('room1').emit('new',{name:data.name, sId:socket.id});
-        socket.join('room1');
-        console.log("joined room1");
-        if(cCount !== 1){
-          for(var key in users){
-            console.log(users[key]);
-            socket.emit('new', users[key]);
-          }
+      io.sockets.in('room1').emit('new',{name:data.name, sId:socket.id});
+      socket.join('room1');
+      console.log("joined room1");
+      if(cCount !== 1){
+        for(var key in users){
+          console.log(users[key]);
+          socket.emit('new', users[key]);
         }
-        users[data.name] = {name:data.name, sId:socket.id};
+      }
+      users[data.name] = {name:data.name, sId:socket.id};
     });
 
     socket.on('leaving', data => {

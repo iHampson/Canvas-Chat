@@ -1,11 +1,14 @@
 var socket;
+var username;
 var connect;
 var send;
 var host;
-
+var clickX;
+var clickY;
+var clickDrag;
 /// Connects to the socketIo lib and establishes responses
 var connectSocket = () => {
-  var username = document.querySelector('#userName').value;
+  username = document.querySelector('#userName').value;
   if(!username){
     alert("You need to input a username");
 
@@ -25,8 +28,9 @@ var connectSocket = () => {
         var newCan = document.createElement('canvas');
         newCan.setAttribute('id',data.name);
         newCan.setAttribute('sId', data.sId);
-        newCan.setAttribute('width', '40%');
-        newCan.setAttribute('height', '40%');
+        newCan.setAttribute('class', 'other');
+        newCan.setAttribute('width', '100%');
+        newCan.setAttribute('height', '100%');
 
         newUser.appendChild(newLabel);
         newUser.appendChild(newCan);
@@ -42,6 +46,8 @@ var connectSocket = () => {
 
     socket.on('updateClient', data => {
       // grab the right canvas and update it... somehow
+      var tar = document.querySelector(`#${data.name}`);
+      redraw(tar, data.clickX, data.clickY, data.clickDrag);
     });
 
     socket.on('clearPara', data => {
@@ -59,30 +65,30 @@ var connectSocket = () => {
 
 /// Sends the message to the server
 var sendMessage = () => {
-  socket.emit('msg', {data:"stuff"});
+  socket.emit('msg', {name:username, clickX:clickX, clickY:clickY, clickDrag:clickDrag});
 };
 
 var paintLocalSetup = () => { // Code from William Malone at http://www.williammalone.com/articles/create-html5-canvas-javascript-drawing-app/
-  var hostContext = host.getContext('2d');
   var paint;
-
-  var clickX = [];
-  var clickY = [];
-  var clickDrag = [];
+  clickX = [];
+  clickY = [];
+  clickDrag = [];
 
   host.addEventListener('mousedown', e => {
     var mouseX = e.pageX - this.offsetLeft;
     var mouseY = e.pageY - this.offsetTop;
 
     paint = true;
-    addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop);
-    redraw();
+    addClick(mouseX, mouseY, false);
+    redraw(host, clickDrag, clickX, clickY);
   });
 
   host.addEventListener('mousemove', e => {
     if(paint){
-      addClick(e.pageX - this.offsetLeft, e.pageY - this.offsetTop, true);
-      redraw();
+      var mouseX = e.pageX - 8;
+      var mouseY = e.pageY - 50;
+      addClick(mouseX, mouseY, true);
+      redraw(host, clickDrag, clickX, clickY);
     }
   });
 
@@ -99,26 +105,26 @@ var paintLocalSetup = () => { // Code from William Malone at http://www.williamm
     clickY.push(y);
     clickDrag.push(dragging);
   };
+};
 
-  var redraw = () => {
-    hostContext.clearRect(0, 0, hostContext.canvas.width, hostContext.canvas.height); // Clears the canvas
-    hostContext.strokeStyle = "#3500E3";
-    hostContext.lineJoin = "round";
-    hostContext.lineWidth = 5;
+var redraw = (tar, clickX, clickY, clickDrag) => {
+  var context = tar.getContext("2d");
+  context.clearRect(0, 0, context.canvas.width, context.canvas.height); // Clears the canvas
+  context.strokeStyle = "#3500E3";
+  context.lineJoin = "round";
+  context.lineWidth = 5;
 
-    for(var i=0; i < clickX.length; i++) {
-      hostContext.beginPath();
-      if(clickDrag[i] && i){
-        hostContext.moveTo(clickX[i-1], clickY[i-1]);
-      }else{
-        hostContext.moveTo(clickX[i]-1, clickY[i]);
-      }
-      hostContext.lineTo(clickX[i], clickY[i]);
-      hostContext.closePath();
-      hostContext.stroke();
+  for(var i=0; i < clickX.length; i++) {
+    context.beginPath();
+    if(clickDrag[i] && i){
+      context.moveTo(clickX[i-1], clickY[i-1]);
+    }else{
+      context.moveTo(clickX[i]-1, clickY[i]);
     }
-  };
-
+    context.lineTo(clickX[i], clickY[i]);
+    context.closePath();
+    context.stroke();
+  }
 };
 
 var init = () => {
