@@ -44,10 +44,19 @@ var connectSocket = () => {
       document.body.removeChild(container);
     });
 
-    socket.on('updateClient', data => {
+    socket.on('response', data => {
       // grab the right canvas and update it... somehow
       var tar = document.querySelector(`#${data.name}`);
-      redraw(tar, data.clickX, data.clickY, data.clickDrag);
+      var tarContext = tar.getContext("2d");
+      // redraw(tar, data.clickX, data.clickY, data.clickDrag);
+      var image = new Image();
+      image.onload = function(){
+        tarContext.save();
+        tarContext.globalCompositeOperation = "sorce-over"; // Canvas default
+        tarContext.drawImage(image, 0, 0, tar.width, tar.height);
+        tarContext.restore();
+      };
+      image.src = data.image;
     });
 
     socket.on('clearPara', data => {
@@ -65,7 +74,8 @@ var connectSocket = () => {
 
 /// Sends the message to the server
 var sendMessage = () => {
-  socket.emit('msg', {name:username, clickX:clickX, clickY:clickY, clickDrag:clickDrag});
+  var img = host.toDataURL();
+  socket.emit('msg', {name:username, image:img}); //clickX:clickX, clickY:clickY, clickDrag:clickDrag});
 };
 
 var paintLocalSetup = () => { // Code from William Malone at http://www.williammalone.com/articles/create-html5-canvas-javascript-drawing-app/
@@ -80,7 +90,7 @@ var paintLocalSetup = () => { // Code from William Malone at http://www.williamm
 
     paint = true;
     addClick(mouseX, mouseY, false);
-    redraw(host, clickDrag, clickX, clickY);
+    redraw(host, clickX, clickY, clickDrag);
   });
 
   host.addEventListener('mousemove', e => {
@@ -88,7 +98,7 @@ var paintLocalSetup = () => { // Code from William Malone at http://www.williamm
       var mouseX = e.pageX - 8;
       var mouseY = e.pageY - 50;
       addClick(mouseX, mouseY, true);
-      redraw(host, clickDrag, clickX, clickY);
+      redraw(host, clickX, clickY, clickDrag);
     }
   });
 

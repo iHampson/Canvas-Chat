@@ -22,7 +22,6 @@ var init = () => {
       console.log("joined room1");
       if(cCount !== 1){
         for(var key in users){
-          console.log(users[key]);
           socket.emit('new', users[key]);
         }
       }
@@ -38,6 +37,7 @@ var init = () => {
 
   var OnMsg = socket => {
     socket.on('msg',data => {
+      console.log(data);
       socket.broadcast.emit('response',data);
     });
   };
