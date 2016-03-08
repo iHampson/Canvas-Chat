@@ -77,6 +77,8 @@ var connectSocket = () => {
 var sendMessage = () => {
   var img = host.toDataURL();
   socket.emit('msg', {name:username, image:img}); //clickX:clickX, clickY:clickY, clickDrag:clickDrag});
+  var hostCon = host.getContext("2d");
+  hostCon.clearRect(0,0,500,500);
 };
 
 var paintLocalSetup = () => { // Code from William Malone at http://www.williammalone.com/articles/create-html5-canvas-javascript-drawing-app/
