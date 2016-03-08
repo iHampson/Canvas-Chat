@@ -3,11 +3,34 @@
 <head>
   <script src="/socket.io/socket.io.js"></script>
   <script src="./client/client.js"></script>
+  <style>
+    div{
+      width: 25%;
+      height: 25%;
+      margin: 10px;
+      float: left;
+    }
+    canvas{
+      border: 2px;
+      border-style: solid;
+      border-color: black;
+    }
+    #host{
+      margin-top: 20px;
+      width: 500px;
+      height: 500px;
+      float: left;
+    }
+    #send{
+      display: none;
+    }
+  </style>
 </head>
 <body>
-  <label for="user">Username:</label>
-	<input id="userName" name="user" type="text"/>
-	<input id="join" type='button' value='Join Room'/></br>
-  <canvas id="host" width=500 height=400></canvas>
+    <label for="user">Username:</label>
+	  <input id="userName" name="user" type="text"/>
+	  <button id="join" type='button'> Join Room </button>
+    <button id="send" type='button'> Send </button></br>
+    <canvas id="host" width=500px height=500px></canvas>
 </body>
 </html>
